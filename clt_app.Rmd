@@ -72,7 +72,7 @@ Column {.sidebar}
 
 ```{r}
 
-selectInput('dist',  label = 'מרחב הדגימה', c("norm", "uni", "exp"),
+selectInput('dist',  label = 'מרחב הדגימה', c("norm", "uni", "exp", "poison", "binomial"),
                 selected= 'norm')
 
 selectInput("m", label = "מספר דגימות שמוגרלות:",
@@ -97,6 +97,22 @@ sliderInput("sd", label = "בחר (אם רלוונטי) סטיית תקן",
             min = 0.1, max = 20,
             value = c(1))
 
+sliderInput("lambda", label = "בחר (אם רלוונטי) למבדא",
+            min = 5, max = 100,
+            value = c(10))
+
+
+renderUI({
+  sliderInput("size", label = "בחר (אם רלוונטי) כמות לבינומאל",
+            min = 1, max = , as.integer(input$n),
+            value = c(10))
+})
+
+sliderInput("prob", label = "בחר (אם רלוונטי) סיכוי",
+            min = 0.01, max = 1,
+            value = c(0.5))
+
+
 sliderInput("bins_num", label = "בחר כמה עמודות יהיו בהיסטוגרמה",
             min = 20, max = 200,
             value = c(30))
@@ -120,6 +136,16 @@ exp_data <-
   as.data.table(matrix(rexp(as.integer(input$n)* as.integer(input$m)), as.integer(input$n),       as.integer(input$m)))
   })
 
+pois_data <- 
+  reactive({
+  as.data.table(matrix(rpois(as.integer(input$n)* as.integer(input$m), lambda = input$lambda), as.integer(input$n),       as.integer(input$m)))
+  })
+
+binomial_data <- 
+  reactive({
+  as.data.table(matrix(rbinom(as.integer(input$n)* as.integer(input$m), size = as.integer(input$size), prob = as.double(input$prob)), as.integer(input$n),       as.integer(input$m)))
+  })
+
 
 # data
 data <- 
@@ -128,9 +154,15 @@ data <-
       norm_data()
     } else if(input$dist == 'uni'){
       uni_data()
-    } else {
+    } else if(input$dist == 'exp'){
       exp_data()
+    }else if(input$dist == 'poison'){
+      pois_data()
+    } else {
+      binomial_data()
     }
+    
+    
       })
 ```
 
