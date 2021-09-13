@@ -5,9 +5,9 @@ account: ophir-betser
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4644297
-bundleId: 5029561
+bundleId: 5029778
 url: https://ophir-betser.shinyapps.io/clt_app/
-when: 1631563881.80919
-lastSyncTime: 1631563881.80921
+when: 1631568697.58393
+lastSyncTime: 1631568697.58395
 asMultiple: FALSE
 asStatic: FALSE
