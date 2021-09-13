@@ -34,29 +34,29 @@ Column {.sidebar}
 
 ```{r}
 
-selectInput('dist',  label = 'dist', c("norm", "uni"),
+selectInput('dist',  label = 'מרחב הדגימה', c("norm", "uni", "exp"),
                 selected= 'norm')
 
 
-selectInput("m", label = "num of dists:",
-            seq(10, 2000, 1),
+selectInput("m", label = "מספר דגימות שמוגרלות:",
+            seq(10, 4000, 5),
             selected= '500')
 
 
-selectInput("n", label = "vector length:",
+selectInput("n", label = "מספר התצפיות שמורגלות בכל דגימה",
             seq(10, 20000, 10),
-            selected= '50')
+            selected= '100')
 
 renderUI({
-selectInput("select_m", "dist_NUM:", seq(1, as.integer(input$m), 1),
+selectInput("select_m", "מבט על דגימה תוצאות הגרלה מספר:", seq(1, as.integer(input$m), 1),
             selected= '1')
         })
 
-sliderInput("mean", label = "mean:",
+sliderInput("mean", label = "בחר (אם רלוונטי) ממוצע",
             min = 0.1, max = 20,
             value = c(4))
 
-sliderInput("sd", label = "sd:",
+sliderInput("sd", label = "בחר (אם רלוונטי) סטיית תקן",
             min = 0.1, max = 20,
             value = c(1))
 
@@ -73,6 +73,10 @@ uni_data <-
   as.data.table(matrix(runif(as.integer(input$n)* as.integer(input$m), min = 0, max = 1), as.integer(input$n),       as.integer(input$m)))
   })
 
+exp_data <- 
+  reactive({
+  as.data.table(matrix(rexp(as.integer(input$n)* as.integer(input$m)), as.integer(input$n),       as.integer(input$m)))
+  })
 
 
 ```
@@ -102,7 +106,7 @@ renderPlot({
         size = ""
         ) +
     theme_classic()
-    } else {
+    } else if(input$dist == 'uni'){
         uni_data() %>% 
     ggplot() +
     geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
@@ -118,7 +122,24 @@ renderPlot({
         size = ""
         ) +
     theme_classic()
+    } else {
+    exp_data() %>% 
+    ggplot() +
+    geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
+                   fill = '#62C0ED') +
+    labs(
+        title = glue('sample {input$select_m} of tot {input$m} samples of {input$dist} dist length {input$n}'),
+        subtitle = "",
+        y = "",
+        x = "",
+        caption = "",
+        color = "",
+        fill = "",
+        size = ""
+        ) +
+    theme_classic()
 
+      
     }
 })
 ```
@@ -157,10 +178,5 @@ renderTable({
 }
 })
 
-```
-
-```{r}
-print("guy  is cool!")
-print("and also ophir!")
 ```
 
