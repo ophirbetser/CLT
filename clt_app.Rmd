@@ -13,18 +13,19 @@ runtime: shiny
 # משפט הגבול המרכזי
 
 ```{r global}
-# load data in 'global' chunk so it can be shared by all users of the dashboard
-
+# load librarys
 if (!require("pacman")){                                  
     install.packages("pacman")}                       
-pacman::p_load(pacman,
-              data.table,
-              tidyverse,
-              ggeasy,
-              Rcpp,
-              glue,
-              flexdashboard,
-              stringi)
+pacman::p_load(
+  pacman,
+  data.table,
+  tidyverse,
+  ggeasy,
+  Rcpp,
+  glue,
+  flexdashboard,
+  stringi
+  )
 
 library(pacman)
 library(data.table)
@@ -35,18 +36,17 @@ library(glue)
 library(flexdashboard)
 library(stringi)
 
-
-ch <- function(a){
-  as.character(a)
-}
-
+# this function create the histogran
+# in the dashborard via user inputs
 render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str, title_type){
+  # set plot title via inputs
   if(title_type == 'dist'){
     title_str <- glue('sample {select_m} of tot {m} samples of {dist} dist length {n}')
   } else {
     title_str <- glue('dist of mean of tot {m} samples of {dist} dist length {n}')
   }
   
+  # create the histogram
   data %>% 
     ggplot() +
     geom_histogram(aes_string(x = paste0("V", select_m), y = "..density.."),
@@ -78,8 +78,11 @@ render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str, t
     easy_remove_y_axis(what = 'line')
 }
 
-dist_hist_colr = '#71C0ED'
-mean_hist_colr = '#194BA8'
+
+ch <- function(a){
+  as.character(a)
+}
+
 ```
 
 
@@ -89,83 +92,159 @@ Column {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
+# set the user selecton sidebar
+selectInput(
+  'dist',
+  label = 'מרחב הדגימה',
+  c("norm", "uni", "exp", "poison", "binomial"),
+  selected= 'exp'
+  )
 
-selectInput('dist',  label = 'מרחב הדגימה', c("norm", "uni", "exp", "poison", "binomial"),
-                selected= 'exp')
+selectInput(
+  "m", 
+  label = "מספר דגימות שמוגרלות:",
+  seq(10, 4000, 5),
+  selected= '500'
+  )
 
-selectInput("m", label = "מספר דגימות שמוגרלות:",
-            seq(10, 4000, 5),
-            selected= '500')
 
-
-selectInput("n", label = "מספר התצפיות שמורגלות בכל דגימה",
-            seq(10, 20000, 10),
-            selected= '200')
-
-renderUI({
-selectInput("select_m", "מבט על דגימה תוצאות הגרלה מספר:", seq(1, as.integer(input$m), 1),
-            selected= '1')
-        })
-
-sliderInput("mean", label = "בחר (אם רלוונטי) ממוצע",
-            min = 0.1, max = 20,
-            value = c(4))
-
-sliderInput("sd", label = "בחר (אם רלוונטי) סטיית תקן",
-            min = 0.1, max = 20,
-            value = c(1))
-
-sliderInput("lambda", label = "בחר (אם רלוונטי) למבדא",
-            min = 5, max = 100,
-            value = c(10))
-
+selectInput(
+  "n", 
+  label = "מספר התצפיות שמורגלות בכל דגימה",
+  seq(10, 20000, 10),
+  selected= '200'
+  )
 
 renderUI({
-  sliderInput("size", label = "בחר (אם רלוונטי) כמות לבינומאל",
-            min = 1, max = , as.integer(input$n),
-            value = c(10))
+  selectInput(
+    "select_m",
+    label = "מבט על דגימה תוצאות הגרלה מספר:",
+    seq(1, as.integer(input$m), 1),
+    selected= '1'
+    )
 })
 
-sliderInput("prob", label = "בחר (אם רלוונטי) סיכוי",
-            min = 0.01, max = 1,
-            value = c(0.5))
+sliderInput(
+  "mean",
+  label = "בחר (אם רלוונטי) ממוצע",
+  min = 0.1, max = 20,
+  value = c(4)
+  )
 
+sliderInput(
+  "sd", 
+  label = "בחר (אם רלוונטי) סטיית תקן",
+  min = 0.1, max = 20,
+  value = c(1)
+  )
 
-sliderInput("bins_num", label = "בחר כמה עמודות יהיו בהיסטוגרמה",
-            min = 20, max = 200,
-            value = c(30))
+sliderInput(
+  "lambda", 
+  label = "בחר (אם רלוונטי) למבדא",
+  min = 5, max = 100,
+  value = c(10)
+  )
 
+renderUI({
+  sliderInput(
+    "size", 
+    label = "בחר (אם רלוונטי) כמות לבינומאל",
+    min = 1, max = , as.integer(input$n),
+    value = c(10)
+    )
+})
+
+sliderInput(
+  "prob", 
+  label = "בחר (אם רלוונטי) סיכוי",
+  min = 0.01, max = 1,
+  value = c(0.5)
+  )
+
+sliderInput(
+  "bins_num", 
+  label = "בחר כמה עמודות יהיו בהיסטוגרמה",
+  min = 20, max = 200,
+  value = c(30)
+  )
 
 ```
 
 ```{r}
+# gen the random data
 norm_data <- 
   reactive({
-matrix(rnorm( as.integer(input$n)* as.integer(input$m), mean = input$mean, sd = input$sd),  as.integer(input$n),       as.integer(input$m)) %>% as.data.frame()
-  })
+    as.data.frame(
+      matrix(
+        rnorm(
+            as.integer(input$n) * as.integer(input$m),
+            mean = input$mean,
+            sd = input$sd
+            ),
+        as.integer(input$n),
+        as.integer(input$m)
+        )
+      )
+})
 
 uni_data <- 
   reactive({
-  as.data.table(matrix(runif(as.integer(input$n)* as.integer(input$m), min = 0, max = 1), as.integer(input$n),       as.integer(input$m)))
-  })
+    as.data.table(
+      matrix(
+        runif(
+            as.integer(input$n) * as.integer(input$m),
+            min = 0,
+            max = 1
+            ),
+        as.integer(input$n),       
+        as.integer(input$m)
+        )
+      )
+})
 
 exp_data <- 
   reactive({
-  as.data.table(matrix(rexp(as.integer(input$n)* as.integer(input$m)), as.integer(input$n),       as.integer(input$m)))
-  })
+    as.data.table(
+      matrix(
+        rexp(
+          as.integer(input$n) * as.integer(input$m)
+          ),
+        as.integer(input$n),       
+        as.integer(input$m)
+        )
+      )
+})
 
 pois_data <- 
   reactive({
-  as.data.table(matrix(rpois(as.integer(input$n)* as.integer(input$m), lambda = input$lambda), as.integer(input$n),       as.integer(input$m)))
-  })
+    as.data.table(
+      matrix(
+        rpois(
+          as.integer(input$n) * as.integer(input$m),
+          lambda = input$lambda
+          ), 
+        as.integer(input$n),       
+        as.integer(input$m)
+        )
+      )
+})
 
 binomial_data <- 
   reactive({
-  as.data.table(matrix(rbinom(as.integer(input$n)* as.integer(input$m), size = as.integer(input$size), prob = as.double(input$prob)), as.integer(input$n),       as.integer(input$m)))
-  })
+    as.data.table(
+      matrix(
+        rbinom(
+          as.integer(input$n)* as.integer(input$m),
+          size = as.integer(input$size), 
+          prob = as.double(input$prob)
+          ), 
+        as.integer(input$n),       
+        as.integer(input$m)
+        )
+      )
+})
 
-
-# data
+# data choose
 data <- 
   reactive({
     if(input$dist == 'norm'){
@@ -192,15 +271,16 @@ Column
 
 
 renderPlot({
-        render_ggplot_hist(data = data(), 
-                           n = input$n,
-                           m = input$m,
-                           select_m = input$select_m,
-                           dist = input$dist,
-                           bins_num = input$bins_num,
-                           fill_str = '#71C0ED',
-                           title_type = "dist"
-                           )
+        render_ggplot_hist(
+          data = data(), 
+          n = input$n,
+          m = input$m,
+          select_m = input$select_m,
+          dist = input$dist,
+          bins_num = input$bins_num,
+          fill_str = '#71C0ED',
+          title_type = "dist"
+          )
 })
 ```
 
@@ -211,14 +291,14 @@ renderPlot({
 renderPlot({
   as.data.table(x = map_dbl(data(), mean)) %>% 
         render_ggplot_hist(
-                           n = input$n,
-                           m = input$m,
-                           select_m = '1',
-                           dist = input$dist,
-                           bins_num = input$bins_num,
-                           fill_str = '#194BA8',
-                           title_type = "mean"
-                           )
+          n = input$n,
+          m = input$m,
+          select_m = '1',
+          dist = input$dist,
+          bins_num = input$bins_num,
+          fill_str = '#194BA8',
+          title_type = "mean"
+          )
 })
 ```
 
