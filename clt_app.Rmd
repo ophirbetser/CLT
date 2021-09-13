@@ -1,0 +1,158 @@
+---
+title: "Central Limit Theorem"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu  
+    source_code: embed
+runtime: shiny
+---
+
+
+
+# 1
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+pacman::p_load(data.table, tidyverse, colourpicker,
+               shiny, flexdashboard, openxlsx, glue,
+               stringi)
+
+ch <- function(a){
+  as.character(a)
+}
+
+ch(123)
+
+```
+
+
+
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+
+selectInput('dist',  label = 'dist', c("norm", "uni"),
+                selected= 'norm')
+
+
+selectInput("m", label = "num of dists:",
+            seq(10, 2000, 1),
+            selected= '500')
+
+
+selectInput("n", label = "vector length:",
+            seq(10, 20000, 10),
+            selected= '50')
+
+renderUI({
+selectInput("select_m", "dist_NUM:", seq(1, as.integer(input$m), 1),
+            selected= '1')
+        })
+
+sliderInput("mean", label = "mean:",
+            min = 0.1, max = 20,
+            value = c(4))
+
+sliderInput("sd", label = "sd:",
+            min = 0.1, max = 20,
+            value = c(1))
+
+```
+
+```{r}
+norm_data <- 
+  reactive({
+matrix(rnorm( as.integer(input$n)* as.integer(input$m), mean = input$mean, sd = input$sd),  as.integer(input$n),       as.integer(input$m)) %>% as.data.frame()
+  })
+
+uni_data <- 
+  reactive({
+  as.data.table(matrix(runif(as.integer(input$n)* as.integer(input$m), min = 0, max = 1), as.integer(input$n),       as.integer(input$m)))
+  })
+
+
+
+```
+
+
+Column
+-----------------------------------------------------------------------
+
+### התפלגות דגימה:
+
+```{r}
+
+renderPlot({
+    if(input$dist == 'norm'){
+  norm_data() %>% 
+    ggplot() +
+    geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
+                   fill = '#71C0ED') +
+      labs(
+        title = glue('sample {input$select_m} of tot {input$m} samples of {input$dist} dist length {input$n}'),
+        subtitle = "",
+        y = "",
+        x = "",
+        caption = "",
+        color = "",
+        fill = "",
+        size = ""
+        ) +
+    theme_classic()
+    } else {
+        uni_data() %>% 
+    ggplot() +
+    geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
+                   fill = '#62C0ED') +
+    labs(
+        title = glue('sample {input$select_m} of tot {input$m} samples of {input$dist} dist length {input$n}'),
+        subtitle = "",
+        y = "",
+        x = "",
+        caption = "",
+        color = "",
+        fill = "",
+        size = ""
+        ) +
+    theme_classic()
+
+    }
+})
+```
+
+
+### התפלגות הממוצעים:
+    
+```{r}
+renderPlot({
+  if(input$dist == 'norm'){
+  as.data.table(x = map_dbl(norm_data(), mean)) %>% 
+    ggplot() +
+    geom_histogram(aes_string(x = paste0("V1"), y = '..density..'),
+                   fill = '#194BA8') +
+    theme_classic()
+  } else {
+    as.data.table(x = map_dbl(uni_data(), mean)) %>% 
+    ggplot() +
+    geom_histogram(aes_string(x = paste0("V1"), y = '..density..'),
+                   fill = '#194BA8') +
+    theme_classic()
+  }
+})
+```
+
+# 2
+
+
+```{r}
+renderTable({
+  if(input$dist == 'norm'){
+  norm_data()
+} else {
+  uni_data()
+}
+})
+```
