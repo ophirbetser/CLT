@@ -49,7 +49,7 @@ render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str, t
         ) +
     theme_classic() +
       theme(axis.text.x = element_text(face="bold", size = 12, color = "black"),
-        axis.text.y = element_text(size = 12, color = "black"),
+        axis.text.y = element_text(size = 12, color = "black", face="bold"),
         axis.ticks = element_line(linetype = "blank"),
         legend.background = element_rect(fill = NA, colour = "black", linetype = "solid"),
         plot.subtitle = element_text(hjust = 1, size = 12), 
