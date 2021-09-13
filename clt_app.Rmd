@@ -14,7 +14,7 @@ runtime: shiny
 
 ```{r global, include=FALSE}
 # load data in 'global' chunk so it can be shared by all users of the dashboard
-pacman::p_load(data.table, tidyverse, colourpicker,
+pacman::p_load(data.table, tidyverse, colourpicker, ggeasy,
                shiny, flexdashboard, openxlsx, glue,
                stringi)
 
@@ -22,15 +22,23 @@ ch <- function(a){
   as.character(a)
 }
 
-render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str){
+render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str, title_type){
+  if(title_type == 'dist'){
+    title_str <- glue('sample {select_m} of tot {m} samples of {dist} dist length {n}')
+  } else {
+    title_str <- ""
+  }
+  
   data %>% 
     ggplot() +
-    geom_histogram(aes_string(x = paste0("V", select_m), y = '..density..'),
+    geom_histogram(aes_string(x = paste0("V", select_m), y = "..density.."),
                    fill = fill_str,
                    bins = bins_num) +
+    geom_density(aes_string(x = paste0("V", select_m), y = '..density..'),
+                 size = 3) +
     scale_y_continuous(expand = c(0,0)) +
     labs(
-        title = glue('sample {select_m} of tot {m} samples of {dist} dist length {n}'),
+        title = title_str,
         subtitle = "",
         y = "",
         x = "",
@@ -39,7 +47,17 @@ render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str){
         fill = "",
         size = ""
         ) +
-    theme_classic()
+    theme_classic() +
+      theme(axis.text.x = element_text(face="bold", size = 12, color = "black"),
+        axis.text.y = element_text(size = 12, color = "black"),
+        axis.ticks = element_line(linetype = "blank"),
+        legend.background = element_rect(fill = NA, colour = "black", linetype = "solid"),
+        plot.subtitle = element_text(hjust = 1, size = 12), 
+        plot.title = element_text(hjust = 0, size = 16, face="bold", color = "black"),
+        panel.grid.major.y = element_line(size=1, colour = "#CFCFCF"),
+        legend.position = "none",
+        legend.title = element_blank()) +
+    easy_remove_y_axis(what = 'line')
 }
 
 dist_hist_colr = '#71C0ED'
@@ -56,7 +74,6 @@ Column {.sidebar}
 
 selectInput('dist',  label = 'מרחב הדגימה', c("norm", "uni", "exp"),
                 selected= 'norm')
-
 
 selectInput("m", label = "מספר דגימות שמוגרלות:",
             seq(10, 4000, 5),
@@ -104,6 +121,17 @@ exp_data <-
   })
 
 
+# data
+data <- 
+  reactive({
+    if(input$dist == 'norm'){
+      norm_data()
+    } else if(input$dist == 'uni'){
+      uni_data()
+    } else {
+      exp_data()
+    }
+      })
 ```
 
 
@@ -114,19 +142,6 @@ Column
 
 ```{r}
 
-data <- 
-  reactive({
-    if(input$dist == 'norm'){
-      norm_data()
-    } else if(input$dist == 'uni'){
-      uni_data()
-    } else {
-      exp_data()
-    }
-
-    
-    
-      })
 
 renderPlot({
         render_ggplot_hist(data = data(), 
@@ -135,7 +150,8 @@ renderPlot({
                            select_m = input$select_m,
                            dist = input$dist,
                            bins_num = input$bins_num,
-                           fill_str = '#71C0ED'
+                           fill_str = '#71C0ED',
+                           title_type = "dist"
                            )
 })
 ```
@@ -152,7 +168,8 @@ renderPlot({
                            select_m = '1',
                            dist = input$dist,
                            bins_num = input$bins_num,
-                           fill_str = '#194BA8'
+                           fill_str = '#194BA8',
+                           title_type = "mean"
                            )
 })
 ```
