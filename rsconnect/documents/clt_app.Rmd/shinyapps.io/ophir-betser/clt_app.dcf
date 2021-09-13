@@ -1,0 +1,13 @@
+name: clt_app
+title: clt_app
+username:
+account: ophir-betser
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4644297
+bundleId: 5029529
+url: https://ophir-betser.shinyapps.io/clt_app/
+when: 1631563349.934
+lastSyncTime: 1631563349.93402
+asMultiple: FALSE
+asStatic: FALSE

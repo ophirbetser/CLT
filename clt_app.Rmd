@@ -12,11 +12,17 @@ runtime: shiny
 
 # משפט הגבול המרכזי
 
-```{r global, include=FALSE}
+```{r global}
 # load data in 'global' chunk so it can be shared by all users of the dashboard
-pacman::p_load(data.table, tidyverse, colourpicker, ggeasy,
-               shiny, flexdashboard, openxlsx, glue,
-               stringi)
+library(pacman)
+library(data.table)
+library(tidyverse)
+library(ggeasy)
+library(Rcpp)
+library(glue)
+library(flexdashboard)
+library(stringi)
+
 
 ch <- function(a){
   as.character(a)
@@ -161,9 +167,7 @@ data <-
     } else {
       binomial_data()
     }
-    
-    
-      })
+})
 ```
 
 
