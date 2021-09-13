@@ -161,5 +161,6 @@ renderTable({
 
 ```{r}
 print("guy  is cool!")
+print("and also ophir!")
 ```
 
