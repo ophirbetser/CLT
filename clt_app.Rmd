@@ -22,8 +22,28 @@ ch <- function(a){
   as.character(a)
 }
 
-ch(123)
+render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str){
+  data %>% 
+    ggplot() +
+    geom_histogram(aes_string(x = paste0("V", select_m), y = '..density..'),
+                   fill = fill_str,
+                   bins = bins_num) +
+    scale_y_continuous(expand = c(0,0)) +
+    labs(
+        title = glue('sample {select_m} of tot {m} samples of {dist} dist length {n}'),
+        subtitle = "",
+        y = "",
+        x = "",
+        caption = "",
+        color = "",
+        fill = "",
+        size = ""
+        ) +
+    theme_classic()
+}
 
+dist_hist_colr = '#71C0ED'
+mean_hist_colr = '#194BA8'
 ```
 
 
@@ -60,6 +80,11 @@ sliderInput("sd", label = "בחר (אם רלוונטי) סטיית תקן",
             min = 0.1, max = 20,
             value = c(1))
 
+sliderInput("bins_num", label = "בחר כמה עמודות יהיו בהיסטוגרמה",
+            min = 20, max = 200,
+            value = c(30))
+
+
 ```
 
 ```{r}
@@ -89,58 +114,29 @@ Column
 
 ```{r}
 
-renderPlot({
+data <- 
+  reactive({
     if(input$dist == 'norm'){
-  norm_data() %>% 
-    ggplot() +
-    geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
-                   fill = '#71C0ED') +
-      labs(
-        title = glue('sample {input$select_m} of tot {input$m} samples of {input$dist} dist length {input$n}'),
-        subtitle = "",
-        y = "",
-        x = "",
-        caption = "",
-        color = "",
-        fill = "",
-        size = ""
-        ) +
-    theme_classic()
+      norm_data()
     } else if(input$dist == 'uni'){
-        uni_data() %>% 
-    ggplot() +
-    geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
-                   fill = '#62C0ED') +
-    labs(
-        title = glue('sample {input$select_m} of tot {input$m} samples of {input$dist} dist length {input$n}'),
-        subtitle = "",
-        y = "",
-        x = "",
-        caption = "",
-        color = "",
-        fill = "",
-        size = ""
-        ) +
-    theme_classic()
+      uni_data()
     } else {
-    exp_data() %>% 
-    ggplot() +
-    geom_histogram(aes_string(x = paste0("V", input$select_m), y = '..density..'),
-                   fill = '#62C0ED') +
-    labs(
-        title = glue('sample {input$select_m} of tot {input$m} samples of {input$dist} dist length {input$n}'),
-        subtitle = "",
-        y = "",
-        x = "",
-        caption = "",
-        color = "",
-        fill = "",
-        size = ""
-        ) +
-    theme_classic()
-
-      
+      exp_data()
     }
+
+    
+    
+      })
+
+renderPlot({
+        render_ggplot_hist(data = data(), 
+                           n = input$n,
+                           m = input$m,
+                           select_m = input$select_m,
+                           dist = input$dist,
+                           bins_num = input$bins_num,
+                           fill_str = '#71C0ED'
+                           )
 })
 ```
 
@@ -149,19 +145,15 @@ renderPlot({
     
 ```{r}
 renderPlot({
-  if(input$dist == 'norm'){
-  as.data.table(x = map_dbl(norm_data(), mean)) %>% 
-    ggplot() +
-    geom_histogram(aes_string(x = paste0("V1"), y = '..density..'),
-                   fill = '#194BA8') +
-    theme_classic()
-  } else {
-    as.data.table(x = map_dbl(uni_data(), mean)) %>% 
-    ggplot() +
-    geom_histogram(aes_string(x = paste0("V1"), y = '..density..'),
-                   fill = '#194BA8') +
-    theme_classic()
-  }
+  as.data.table(x = map_dbl(data(), mean)) %>% 
+        render_ggplot_hist(
+                           n = input$n,
+                           m = input$m,
+                           select_m = '1',
+                           dist = input$dist,
+                           bins_num = input$bins_num,
+                           fill_str = '#194BA8'
+                           )
 })
 ```
 
@@ -171,12 +163,18 @@ renderPlot({
 
 ```{r}
 renderTable({
-  if(input$dist == 'norm'){
-  norm_data()
-} else {
-  uni_data()
-}
-})
+  data()
+  })
 
 ```
 
+# טבלת ממוצעי ההגרלות
+
+### וקטור הממוצעים
+
+```{r}
+renderTable({
+  as.data.table(x = map_dbl(data(), mean))
+})
+
+```
