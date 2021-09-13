@@ -91,7 +91,7 @@ Column {.sidebar}
 ```{r}
 
 selectInput('dist',  label = 'מרחב הדגימה', c("norm", "uni", "exp", "poison", "binomial"),
-                selected= 'norm')
+                selected= 'exp')
 
 selectInput("m", label = "מספר דגימות שמוגרלות:",
             seq(10, 4000, 5),
@@ -100,7 +100,7 @@ selectInput("m", label = "מספר דגימות שמוגרלות:",
 
 selectInput("n", label = "מספר התצפיות שמורגלות בכל דגימה",
             seq(10, 20000, 10),
-            selected= '100')
+            selected= '200')
 
 renderUI({
 selectInput("select_m", "מבט על דגימה תוצאות הגרלה מספר:", seq(1, as.integer(input$m), 1),
