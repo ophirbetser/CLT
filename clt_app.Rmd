@@ -161,6 +161,9 @@ renderTable({
 
 
 ```{r}
-pritn("ophir betser is king")
+print("ophir betser is king")
+asdasdasd
+ asdasdasd
+ asdasd
 ```
 
