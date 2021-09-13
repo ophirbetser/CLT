@@ -162,5 +162,6 @@ renderTable({
 
 ```{r}
 print("ophir betser is king")
+print("ophir and git are frinds")
 ```
 
