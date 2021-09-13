@@ -10,7 +10,7 @@ runtime: shiny
 
 
 
-# 1
+# משפט הגבול המרכזי
 
 ```{r global, include=FALSE}
 # load data in 'global' chunk so it can be shared by all users of the dashboard
@@ -144,8 +144,9 @@ renderPlot({
 })
 ```
 
-# 2
+# טבלת הנתונים
 
+### כל עמודה מייצגת הגרלה של וקטור רנדומלי מתוך מרחב התפלגות
 
 ```{r}
 renderTable({
@@ -156,12 +157,5 @@ renderTable({
 }
 })
 
-```
-
-
-
-```{r}
-print("ophir betser is king")
-print("ophir and git are frinds")
 ```
 
