@@ -159,3 +159,7 @@ renderTable({
 
 ```
 
+```{r}
+print("guy  is cool!")
+```
+
