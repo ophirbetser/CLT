@@ -26,7 +26,7 @@ render_ggplot_hist <- function(data, n, m, select_m, dist, bins_num, fill_str, t
   if(title_type == 'dist'){
     title_str <- glue('sample {select_m} of tot {m} samples of {dist} dist length {n}')
   } else {
-    title_str <- ""
+    title_str <- glue('dist of mean of tot {m} samples of {dist} dist length {n}')
   }
   
   data %>% 
