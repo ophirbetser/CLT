@@ -14,6 +14,18 @@ runtime: shiny
 
 ```{r global}
 # load data in 'global' chunk so it can be shared by all users of the dashboard
+
+if (!require("pacman")){                                  
+    install.packages("pacman")}                       
+pacman::p_load(pacman,
+              data.table,
+              tidyverse,
+              ggeasy,
+              Rcpp,
+              glue,
+              flexdashboard,
+              stringi)
+
 library(pacman)
 library(data.table)
 library(tidyverse)
